@@ -32,8 +32,11 @@ FIELDS_STAT_1 = (
 )
 FS_HSA = "m:0+t:6+f:!2,m:0+t:13+f:!2,m:0+t:80+f:!2,m:1+t:2+f:!2,m:1+t:23+f:!2"
 
-CACHE_PATH = "fund_flow_top10_history.csv"
-CACHE_XLSX_PATH = "fund_flow_top10_history.xlsx"
+CACHE_PATH = "fund_flow_top10_cache.csv"
+FUND_FLOW_HISTORY_CSV_PATH = "fund_flow_top10_history.csv"
+FUND_FLOW_HISTORY_XLSX_PATH = "fund_flow_top10_history.xlsx"
+SELECTED_CSV_HISTORY_PATH = "selected_cn_history.csv"
+SELECTED_XLSX_HISTORY_PATH = "selected_cn_history.xlsx"
 
 COLUMN_MAP = {
     "\u65e5\u671f": "date",
@@ -96,13 +99,19 @@ def load_cache():
 
 def save_cache(df):
     df.to_csv(CACHE_PATH, index=False, encoding="utf-8-sig")
-    write_excel_with_text_code(df, CACHE_XLSX_PATH)
 
 
 def update_cache_for_date(trade_date):
     cache_df = load_cache()
     existing = cache_df[cache_df["trade_date"] == trade_date]
-    if len(existing) >= 20:
+    if len(existing) >= 10:
+        append_history_csv(existing, FUND_FLOW_HISTORY_CSV_PATH, code_columns=["code"])
+        append_history_excel(
+            existing,
+            FUND_FLOW_HISTORY_XLSX_PATH,
+            sheet_name="History",
+            code_columns=["code"],
+        )
         return cache_df
     rows = fetch_fund_flow_top10()
     if not rows:
@@ -112,6 +121,13 @@ def update_cache_for_date(trade_date):
     new_df["trade_date"] = trade_date
     merged = pd.concat([cache_df, new_df], ignore_index=True)
     save_cache(merged)
+    append_history_csv(new_df, FUND_FLOW_HISTORY_CSV_PATH, code_columns=["code"])
+    append_history_excel(
+        new_df,
+        FUND_FLOW_HISTORY_XLSX_PATH,
+        sheet_name="History",
+        code_columns=["code"],
+    )
     return merged
 
 
@@ -164,26 +180,82 @@ def write_excel_with_text_code(df, path, sheet_name="data"):
                         cell.number_format = numbers.FORMAT_TEXT
 
 
+def load_history_excel(path, sheet_name):
+    try:
+        df = pd.read_excel(path, sheet_name=sheet_name, dtype={"code": str, "Code": str})
+        for col in ["code", "Code"]:
+            if col in df.columns:
+                df[col] = df[col].astype(str).str.zfill(6)
+        return df
+    except Exception:
+        return pd.DataFrame()
+
+
+def append_history_excel(df, path, sheet_name, code_columns):
+    try:
+        import openpyxl  # noqa: F401
+    except Exception:
+        print(f"Warning: openpyxl not available, skipped Excel output: {path}")
+        return
+    df_out = df.copy()
+    df_out["run_time"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
+    for col in code_columns:
+        if col in df_out.columns:
+            df_out[col] = df_out[col].astype(str).str.zfill(6)
+    history = load_history_excel(path, sheet_name)
+    history = pd.concat([history, df_out], ignore_index=True)
+    write_excel_with_text_code(history, path, sheet_name=sheet_name)
+
+
+def append_history_csv(df, path, code_columns):
+    df_out = df.copy()
+    df_out["run_time"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
+    for col in code_columns:
+        if col in df_out.columns:
+            df_out[col] = df_out[col].astype(str).str.zfill(6)
+    try:
+        history = pd.read_csv(path, dtype={col: str for col in code_columns})
+        for col in code_columns:
+            if col in history.columns:
+                history[col] = history[col].astype(str).str.zfill(6)
+    except Exception:
+        history = pd.DataFrame()
+    history = pd.concat([history, df_out], ignore_index=True)
+    history.to_csv(path, index=False, encoding="utf-8-sig")
+
+
 def write_levels_excel(df, path):
     try:
         import openpyxl  # noqa: F401
     except Exception:
         print(f"Warning: openpyxl not available, skipped Excel output: {path}")
         return
+    run_time = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
+    df_run = df.copy()
+    df_run["run_time"] = run_time
+    for col in ["Code"]:
+        if col in df_run.columns:
+            df_run[col] = df_run[col].astype(str).str.zfill(6)
+
+    history = load_history_excel(path, "History")
+    history = pd.concat([history, df_run], ignore_index=True)
+
     with pd.ExcelWriter(path, engine="openpyxl") as writer:
+        history.to_excel(writer, index=False, sheet_name="History")
         for level in [1, 2, 3]:
-            df_level = df[df["Level"] == level].copy()
+            df_level = df_run[df_run["Level"] == level].copy()
             if df_level.empty:
-                df_level = pd.DataFrame(columns=df.columns)
+                df_level = pd.DataFrame(columns=df_run.columns)
             df_level = df_level.sort_values(["Appearances_7D"], ascending=[False])
             df_level.to_excel(writer, index=False, sheet_name=f"Level_{level}")
         summary_rows = []
         for level in [1, 2, 3]:
-            codes = df[df["Level"] == level]["Code"].tolist()
+            codes = df_run[df_run["Level"] == level]["Code"].tolist()
             summary_rows.append(
                 {"Level": level, "Codes": ", ".join(codes) if codes else ""}
             )
         pd.DataFrame(summary_rows).to_excel(writer, index=False, sheet_name="Summary")
+
     wb = openpyxl.load_workbook(path)
     for sheet_name in wb.sheetnames:
         ws = wb[sheet_name]
@@ -419,8 +491,8 @@ else:
     )
 
 if not df_res.empty:
-    df_res.to_csv("selected_cn.csv", index=False, encoding="utf-8-sig")
-    write_levels_excel(df_res, "selected_cn.xlsx")
-    print("Saved to selected_cn.csv")
+    append_history_csv(df_res, SELECTED_CSV_HISTORY_PATH, code_columns=["Code"])
+    write_levels_excel(df_res, SELECTED_XLSX_HISTORY_PATH)
+    print(f"Saved to {SELECTED_CSV_HISTORY_PATH}")
 
 print("\nScan completed.")
