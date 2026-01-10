@@ -2,7 +2,7 @@ import time
 import random
 from collections import Counter
 
-import akshare as ak
+import akshare as ak 
 import numpy as np
 import pandas as pd
 import requests
@@ -12,8 +12,8 @@ print("CN Stock Screener - Fund Flow + Technical Filters")
 # ------------------------------
 # Configuration
 # ------------------------------
-LOOKBACK_DAYS = 120
-MIN_RETURN_5D = 0.03
+LOOKBACK_DAYS = 120 # 策略阈值
+MIN_RETURN_5D = 0.03 #
 MIN_RETURN_7D_CUM = 0.25
 MIN_VOLUME_INCREASE = 1.2
 MIN_ROE_PCT = 10.0
@@ -21,15 +21,15 @@ MAX_PRICE_RATIO = 0.90
 CLOSE_ABOVE_MA5_DAYS = 15
 CLOSE_ABOVE_MA5_MIN = 11
 MA_SLOPE_DAYS = 5
-MIN_APPEARANCES_7D = 3
-LAST_TRADE_DAYS = 7
+MIN_APPEARANCES_7D = 2
+LAST_TRADE_DAYS = 10
 DEBUG_FILTER = True
 
 EASTMONEY_URL = "https://push2.eastmoney.com/api/qt/clist/get"
 EASTMONEY_UT = "8dec03ba335b81bf4ebdf7b29ec27d15"
 FIELDS_STAT_1 = (
     "f12,f14,f2,f3,f62,f184,f66,f69,f72,f75,f78,f81,f84,f87,f204,f205,f124,f1,f13"
-)
+) # 括号内多element表示元组， 现在还是字符
 FS_HSA = "m:0+t:6+f:!2,m:0+t:13+f:!2,m:0+t:80+f:!2,m:1+t:2+f:!2,m:1+t:23+f:!2"
 
 CACHE_PATH = "fund_flow_top10_cache.csv"
@@ -47,14 +47,14 @@ COLUMN_MAP = {
     "\u6210\u4ea4\u91cf": "volume",
 }
 
-
+# 获取最近 n 个交易日日期列表
 def get_last_trade_dates(n):
     try:
         df = ak.tool_trade_date_hist_sina()
         df["trade_date"] = pd.to_datetime(df["trade_date"])
         df = df[df["trade_date"] <= pd.Timestamp.today().normalize()]
         dates = df["trade_date"].tail(n).dt.strftime("%Y-%m-%d").tolist()
-        if dates:
+        if dates: # when date is empty return false
             return dates
     except Exception:
         pass
@@ -92,6 +92,11 @@ def load_cache():
     try:
         df = pd.read_csv(CACHE_PATH, dtype={"code": str})
         df["code"] = df["code"].astype(str).str.zfill(6)
+        if "trade_date" in df.columns:
+            df["trade_date"] = (
+                pd.to_datetime(df["trade_date"], errors="coerce")
+                .dt.strftime("%Y-%m-%d")
+            )
         return df
     except Exception:
         return pd.DataFrame(columns=["trade_date", "code", "name", "rank"])
@@ -146,10 +151,10 @@ def get_candidates_from_cache(trade_dates):
     available_days = len(available_dates)
     if available_days == 0:
         return {}
-    if available_days < LAST_TRADE_DAYS:
-        threshold = int(available_days * 0.5) + 1
+    if available_days < 3:
+        threshold = 1
         print(
-            f"Only {available_days} cached day(s). Using >50% rule: "
+            f"Only {available_days} cached day(s). Using >=1 rule: "
             f"appearances >= {threshold}."
         )
     else:
