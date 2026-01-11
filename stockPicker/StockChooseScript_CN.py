@@ -229,12 +229,13 @@ def append_history_csv(df, path, code_columns):
     history.to_csv(path, index=False, encoding="utf-8-sig")
 
 
-def write_levels_excel(df, path):
+def write_levels_excel(df, path, mode="A"):
     try:
         import openpyxl  # noqa: F401
     except Exception:
         print(f"Warning: openpyxl not available, skipped Excel output: {path}")
         return
+    import os
     run_time = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
     df_run = df.copy()
     df_run["run_time"] = run_time
@@ -242,24 +243,45 @@ def write_levels_excel(df, path):
         if col in df_run.columns:
             df_run[col] = df_run[col].astype(str).str.zfill(6)
 
-    history = load_history_excel(path, "History")
+    mode_key = str(mode).strip().upper() or "A"
+    if mode_key == "A":
+        mode_suffix = "7cacheData"
+    elif mode_key == "B":
+        mode_suffix = "onetime"
+    else:
+        mode_suffix = mode_key
+    history_sheet = f"History_{mode_suffix}"
+    summary_sheet = f"Summary_{mode_suffix}"
+    level_sheet_fmt = f"Level_{{level}}_{mode_suffix}"
+
+    history = load_history_excel(path, history_sheet)
     history = pd.concat([history, df_run], ignore_index=True)
 
-    with pd.ExcelWriter(path, engine="openpyxl") as writer:
-        history.to_excel(writer, index=False, sheet_name="History")
+    summary_rows = []
+    for level in [1, 2, 3]:
+        codes = df_run[df_run["Level"] == level]["Code"].tolist()
+        summary_rows.append({"Level": level, "Codes": ", ".join(codes) if codes else ""})
+    summary_df = pd.DataFrame(summary_rows)
+    summary_history = load_history_excel(path, summary_sheet)
+    summary_history = pd.concat([summary_history, summary_df], ignore_index=True)
+
+    writer_kwargs = {"engine": "openpyxl"}
+    if os.path.exists(path):
+        writer_kwargs["mode"] = "a"
+        writer_kwargs["if_sheet_exists"] = "replace"
+
+    with pd.ExcelWriter(path, **writer_kwargs) as writer:
+        history.to_excel(writer, index=False, sheet_name=history_sheet)
         for level in [1, 2, 3]:
+            sheet_name = level_sheet_fmt.format(level=level)
             df_level = df_run[df_run["Level"] == level].copy()
             if df_level.empty:
                 df_level = pd.DataFrame(columns=df_run.columns)
             df_level = df_level.sort_values(["Appearances_7D"], ascending=[False])
-            df_level.to_excel(writer, index=False, sheet_name=f"Level_{level}")
-        summary_rows = []
-        for level in [1, 2, 3]:
-            codes = df_run[df_run["Level"] == level]["Code"].tolist()
-            summary_rows.append(
-                {"Level": level, "Codes": ", ".join(codes) if codes else ""}
-            )
-        pd.DataFrame(summary_rows).to_excel(writer, index=False, sheet_name="Summary")
+            level_history = load_history_excel(path, sheet_name)
+            level_history = pd.concat([level_history, df_level], ignore_index=True)
+            level_history.to_excel(writer, index=False, sheet_name=sheet_name)
+        summary_history.to_excel(writer, index=False, sheet_name=summary_sheet)
 
     wb = openpyxl.load_workbook(path)
     for sheet_name in wb.sheetnames:
@@ -435,10 +457,19 @@ def screen_stock(code, appearances_7d):
     }, debug
 
 
+mode = input("Select mode: A=cache history, B=today only: ").strip().upper()
+if mode not in {"A", "B"}:
+    print("Unknown mode, defaulting to A (cache history).")
+    mode = "A"
+
 trade_dates = get_last_trade_dates(LAST_TRADE_DAYS)
 latest_trade_date = trade_dates[-1]
 cache_df = update_cache_for_date(latest_trade_date)
-candidate_counts = get_candidates_from_cache(trade_dates)
+if mode == "B":
+    today_rows = fetch_fund_flow_top10()
+    candidate_counts = {row["code"]: 1 for row in today_rows} if today_rows else {}
+else:
+    candidate_counts = get_candidates_from_cache(trade_dates)
 
 print(f"Trade dates (last {LAST_TRADE_DAYS}): {', '.join(trade_dates)}")
 print(f"Candidates after fund flow filter: {len(candidate_counts)}")
@@ -497,7 +528,7 @@ else:
 
 if not df_res.empty:
     append_history_csv(df_res, SELECTED_CSV_HISTORY_PATH, code_columns=["Code"])
-    write_levels_excel(df_res, SELECTED_XLSX_HISTORY_PATH)
+    write_levels_excel(df_res, SELECTED_XLSX_HISTORY_PATH, mode=mode)
     print(f"Saved to {SELECTED_CSV_HISTORY_PATH}")
 
 print("\nScan completed.")
