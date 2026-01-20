@@ -1,0 +1,128 @@
+# US Equity Screening Engine (Trend + RS + Institutional Confirmation)
+
+A rule-based US stock screening engine designed to identify strong, accelerating equities
+using trend structure, relative strength, volume behavior, and VWAP-based cost confirmation.
+This system focuses on **stock selection only** and does not perform automated trading.
+
+---
+
+## 📌 Strategy Objective
+
+The goal of this screener is to identify **high-quality, high-momentum US equities**
+that have already been validated by the market and are entering an acceleration phase,
+while avoiding emotional extremes such as chasing absolute highs or speculative noise.
+
+This strategy emphasizes:
+- Trend confirmation over prediction
+- Institutional participation over retail noise
+- Strength relative to the market (Alpha) rather than index-driven moves (Beta)
+
+---
+
+## 🧠 Core Philosophy
+
+> Strong stocks tend to stay strong — but only when  
+> **trend structure, price behavior, volume, and cost basis align**.
+
+The screener is intentionally **selective** and may return very few candidates during
+unfavorable market regimes. This behavior is considered a feature, not a flaw.
+
+---
+
+## 🏗️ Strategy Components
+
+### 1️⃣ Trend Structure (Primary Filter)
+
+- **MA7 > MA14 > MA21**
+- All three moving averages must have **positive slopes**
+
+This ensures short- and medium-term trends are aligned and accelerating,
+filtering out weak rebounds and range-bound stocks.
+
+Additionally:
+- **MA5 > MA10 > MA20**
+to confirm short-term bullish alignment.
+
+---
+
+### 2️⃣ Short-Term Strength Confirmation
+
+- **In the last 6 trading days, at least 5 closes must be above MA5**
+
+This allows for one washout day while still requiring consistent strength,
+which better reflects typical US equity price behavior.
+
+- **5-day return > 3%**
+
+Ensures recent momentum exists and avoids selecting purely slow-moving trends.
+
+---
+
+### 3️⃣ Momentum & Relative Strength (RS)
+
+- Stocks must exhibit **positive Relative Strength (RS) versus SPY**
+- Preference is given to equities that **clearly outperform the broader market**
+
+This filters out stocks rising only due to index movements and focuses on
+true alpha-generating candidates.
+
+---
+
+### 4️⃣ Institutional Activity Confirmation (Volume-Based)
+
+To replace A-share style capital flow rankings, the screener uses **volume and dollar-volume behavior**:
+
+- **In the past 7 trading days, at least 2 days must show strong volume or dollar-volume expansion**
+- Volume expansion should occur on **up days or breakout days**
+
+This helps identify stocks with sustained capital participation rather than one-day spikes.
+
+---
+
+### 5️⃣ VWAP Cost Confirmation (Daily VWAP Series)
+
+- **The 5-day Daily VWAP series must be in an upward trend (positive slope)**
+
+This ensures that the average transaction cost of market participants is increasing,
+confirming that price appreciation is supported by real capital commitment,
+not just end-of-day price manipulation.
+
+VWAP is used as a **confirmation signal**, not a standalone trigger.
+
+---
+
+### 6️⃣ Price Location Control (Avoid Chasing Extremes)
+
+- The current price must **not be at an extreme historical high**
+- Stocks may trade near highs but should not be at emotionally overextended levels
+
+This balances an aggressive trend-following approach with basic risk control,
+favoring trend continuation rather than late-stage breakouts.
+
+---
+
+### 7️⃣ Fundamental Quality Filter
+
+- **ROE > 10%**
+
+Used strictly as a quality filter to avoid structurally weak or loss-making companies.
+Fundamentals are not used for timing, only as a minimum viability constraint.
+
+---
+
+## 📤 Output
+
+The screener outputs a **ranked list of candidate stocks**, typically including:
+- Ticker
+- Trend and momentum metrics
+- Relative strength vs SPY
+- Volume and VWAP confirmations
+
+The final list represents a **high-conviction research watchlist**, not trade signals.
+
+---
+
+## ⚠️ Design Notes
+
+- This system is **intentionally selective**
+- It may return zero candidates during unf
