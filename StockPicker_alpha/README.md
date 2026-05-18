@@ -1,4 +1,4 @@
-# InterviewHomework
+# Task
 
 Course scripts for auditing SAS extracts, merging signals with CRSP-style returns and Fama-French/Carhart factors, and building a monthly return-prediction-style panel.
 
@@ -32,7 +32,7 @@ Missing files raise `FileNotFoundError` when a script tries to load them.
 From the repository root:
 
 ```bash
-cd InterviewHomework          # adjust path if needed
+cd Stockpicker_alpha          # adjust path if needed
 
 python part1_script.py              # Part 1: audits, duplicates, merge-key notes
 python part2_script.py              # Part 2: selected signals report
