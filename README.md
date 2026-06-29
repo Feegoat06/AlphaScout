@@ -27,7 +27,7 @@ A **factor / alpha research pipeline** on monthly SAS panels (signals → forwar
 | `factor_research_demo/`               | Factor research flight recorder: rule-based monitoring + agent governance layer, research memos and metric artifacts |
 
 
-See each subdirectory’s `README.md` and `requirements.txt` for details. test
+See each subdirectory’s `README.md` and `requirements.txt` for details. 
 
 ---
 
