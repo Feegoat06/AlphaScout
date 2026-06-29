@@ -1,0 +1,22 @@
+,agent,risk_flag,evidence,severity,next_action
+0,DataIntegrityAgent,Data integrity checks passed,Required fields present and no blocking duplicate-key issues detected.,Low,Proceed to timing and factor diagnostics.
+1,TimingAgent,Synthetic timing convention,Synthetic bundle uses month-end scores shifted before next-month returns.,Low,Replace with Part 3 panel timing when SAS files are available.
+2,AlphaDiagnosticsAgent,No FF4 diagnostics available,FF4 alpha not computed (synthetic fallback or insufficient factor history).,Medium,Run on real SAS pipeline with factor merge enabled.
+3,RegimeAgent,Regime stability acceptable,No factor shows extreme cross-regime Sharpe dispersion in this sample.,Low,Extend regime buckets when using longer live histories.
+4,LiteratureAgent,momentum: academic prior,Jegadeesh & Titman (1993): momentum premia are well documented but crash-prone; monitor regime and turnover.,Low,Compare backtest sign and magnitude against published anomaly baselines.
+5,LiteratureAgent,BtM: academic prior,Fama & French (1992): value premia are classic but cyclical; verify economic link in current sample.,Low,Compare backtest sign and magnitude against published anomaly baselines.
+6,LiteratureAgent,ivol: academic prior,Ang et al. (2006) idiosyncratic volatility puzzle: higher ivol predicts lower returns; sign flip is intentional.,Low,Compare backtest sign and magnitude against published anomaly baselines.
+7,LiteratureAgent,ROA: academic prior,Novy-Marx (2013) profitability: quality/profitability factors can complement value; check overlap with BtM.,Low,Compare backtest sign and magnitude against published anomaly baselines.
+8,MemoAgent,Research recommendation,Top candidate after governance scoring: momentum (score 0.23).,Low,Share memo with PM; run validation checklist before capital allocation.
+9,MemoAgent,Investment memo generated,"# Investment Research Memo
+
+## Data source
+**synthetic_fallback** — Part 3 panel + Part 4 quintile long-short when SAS files are present.
+
+## Recommended factor for continued research
+**momentum** is the strongest candidate after combining performance, hit rate, turnover, FF4 alpha, and monitor penalties.
+
+## Why it might work
+Past relative strength over a recent horizon; captures gradual information diffusion / underreaction and related risk narratives for continuation.
+
+## Evidence from the ba...",Low,Attach memo to research ticket with monitor tables and data manifest.

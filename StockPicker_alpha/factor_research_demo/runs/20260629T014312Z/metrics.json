@@ -1,0 +1,62 @@
+[
+  {
+    "factor": "momentum",
+    "cagr": 0.03134487347762205,
+    "sharpe": 0.387599659760285,
+    "max_drawdown": -0.14607322903257347,
+    "hit_rate": 0.6161616161616161,
+    "avg_turnover": 0.34847147650268895,
+    "ff4_alpha_monthly": NaN,
+    "ff4_alpha_se": NaN,
+    "capm_alpha_monthly": NaN,
+    "capm_alpha_se": NaN,
+    "n_months": 99,
+    "mean_monthly_ls": 0.002914808820353508,
+    "annualized_vol_ls": 0.0902418383593897
+  },
+  {
+    "factor": "BtM",
+    "cagr": -0.039847856599733444,
+    "sharpe": -0.35165675774160454,
+    "max_drawdown": -0.3608055176919305,
+    "hit_rate": 0.4827586206896552,
+    "avg_turnover": 0.2866460716665914,
+    "ff4_alpha_monthly": NaN,
+    "ff4_alpha_se": NaN,
+    "capm_alpha_monthly": NaN,
+    "capm_alpha_se": NaN,
+    "n_months": 87,
+    "mean_monthly_ls": -0.0029593637873282876,
+    "annualized_vol_ls": 0.10098587519263238
+  },
+  {
+    "factor": "ivol",
+    "cagr": -0.04213559038796322,
+    "sharpe": -0.31667831670166097,
+    "max_drawdown": -0.3984734320686617,
+    "hit_rate": 0.5283018867924528,
+    "avg_turnover": 0.30783882783882777,
+    "ff4_alpha_monthly": NaN,
+    "ff4_alpha_se": NaN,
+    "capm_alpha_monthly": NaN,
+    "capm_alpha_se": NaN,
+    "n_months": 106,
+    "mean_monthly_ls": -0.003028772179676667,
+    "annualized_vol_ls": 0.11477030235183568
+  },
+  {
+    "factor": "ROA",
+    "cagr": -0.02093409427776316,
+    "sharpe": -0.17810737126330706,
+    "max_drawdown": -0.3047790607794839,
+    "hit_rate": 0.4732142857142857,
+    "avg_turnover": 0.31628143981085144,
+    "ff4_alpha_monthly": NaN,
+    "ff4_alpha_se": NaN,
+    "capm_alpha_monthly": NaN,
+    "capm_alpha_se": NaN,
+    "n_months": 112,
+    "mean_monthly_ls": -0.0013959174166029867,
+    "annualized_vol_ls": 0.09405006025534897
+  }
+]

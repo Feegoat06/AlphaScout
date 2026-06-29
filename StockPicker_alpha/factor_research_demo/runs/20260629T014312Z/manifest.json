@@ -1,0 +1,15 @@
+{
+  "timestamp_utc": "20260629T014312Z",
+  "git_hash": "6666338992d15493409853ad60e88845745b0a62",
+  "data_source": "synthetic_fallback",
+  "factors": [
+    "momentum",
+    "BtM",
+    "ivol",
+    "ROA"
+  ],
+  "agent_count": 6,
+  "high_severity_findings": 0,
+  "panel_cache": null,
+  "ls_cache": "/Users/feegoat06/Desktop/QuantTradeProjects/StockPicker_alpha/factor_research_demo/data/cache/factor_ls_returns.parquet"
+}

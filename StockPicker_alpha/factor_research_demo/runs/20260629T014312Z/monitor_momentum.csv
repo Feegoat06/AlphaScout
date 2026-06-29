@@ -1,0 +1,4 @@
+,risk_flag,evidence,severity,next_action
+2,Unstable rolling Sharpe,36.8% of 24-month rolling Sharpe observations are negative.,Medium,Run walk-forward validation and compare against a simple equal-weight benchmark.
+0,Hypothesis clarity,Past relative strength over a recent horizon; captures gradual information diffusion / underreaction and related risk narratives for continuation.,Low,Keep the economic rationale attached to every backtest variant.
+1,Lookahead control,Signals use formation month t; returns attach to t+1 via Part 3 panel (cal_ym_signal -> cal_ym_fwd).,Low,"In live data, verify point-in-time fundamentals and corporate-action handling."

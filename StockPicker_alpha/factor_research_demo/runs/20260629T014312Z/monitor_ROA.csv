@@ -1,0 +1,6 @@
+,risk_flag,evidence,severity,next_action
+2,Weak full-sample signal,Full-sample Sharpe is only -0.18.,High,Reject or redesign the signal unless a stronger sub-universe rationale exists.
+4,Material drawdown,Max drawdown is -30.5%.,Medium,Review drawdown timing and whether risk controls would have reduced exposure.
+3,Unstable rolling Sharpe,50.6% of 24-month rolling Sharpe observations are negative.,Medium,Run walk-forward validation and compare against a simple equal-weight benchmark.
+0,Hypothesis clarity,Return on assets proxies for operating profitability / quality — firms with stronger realized profitability often earn persistent cross-sectional premia.,Low,Keep the economic rationale attached to every backtest variant.
+1,Lookahead control,Signals use formation month t; returns attach to t+1 via Part 3 panel (cal_ym_signal -> cal_ym_fwd).,Low,"In live data, verify point-in-time fundamentals and corporate-action handling."
