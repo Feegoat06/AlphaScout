@@ -11,9 +11,9 @@ import numpy as np
 import pandas as pd
 
 DEMO_ROOT = Path(__file__).resolve().parent
-PROJECT_ROOT = DEMO_ROOT.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+EXERCISE_ROOT = DEMO_ROOT.parent / "exercise"
+if str(EXERCISE_ROOT) not in sys.path:
+    sys.path.insert(0, str(EXERCISE_ROOT))
 
 from part2_script import SELECTED_SIGNALS  # noqa: E402
 

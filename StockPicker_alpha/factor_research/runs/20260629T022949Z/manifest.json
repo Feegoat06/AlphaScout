@@ -1,0 +1,16 @@
+{
+  "timestamp_utc": "20260629T022949Z",
+  "git_hash": "a4536e7d963f52319426e29ed8f10d63dd0a9f75",
+  "data_source": "real_sas_pipeline",
+  "factors": [
+    "momentum",
+    "BtM",
+    "ROA",
+    "ivol",
+    "composite"
+  ],
+  "agent_count": 6,
+  "high_severity_findings": 0,
+  "panel_cache": "/Users/feegoat06/Desktop/QuantTradeProjects/StockPicker_alpha/factor_research/data/cache/panel_essential.parquet",
+  "ls_cache": "/Users/feegoat06/Desktop/QuantTradeProjects/StockPicker_alpha/factor_research/data/cache/factor_ls_returns.parquet"
+}
