@@ -2,7 +2,7 @@
 
 A **factor research flight recorder** built on top of the take-home pipeline (`part1`–`part3` + `return_prediction_model`). It answers the asset-management question: **should a researcher or PM trust this backtest?**
 
-## Narrative (for recruiters)
+## Narrative
 
 Last take-home: SAS audit → signal selection → prediction panel with strict `t → t+1` timing → quintile long-short + **Carhart-4 alpha**.
 
@@ -63,7 +63,7 @@ If missing, the pipeline automatically uses **synthetic fallback** so the demo s
 ## How to run
 
 ```bash
-cd factor_research_demo
+cd factor_research
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
@@ -73,11 +73,16 @@ python run_flight_recorder.py
 # Force synthetic only
 python run_flight_recorder.py --synthetic-only
 
+# Optional LangChain narrative layer (requires OPENAI_API_KEY + requirements-llm.txt)
+python -m pip install -r requirements-llm.txt
+FACTOR_GOV_LLM=1 python run_flight_recorder.py --with-llm
+
 # Notebook
 jupyter notebook Agentic_Factor_Research_Monitor.ipynb
 ```
 
 Run all cells top-to-bottom. Set `PREFER_REAL = False` in the notebook to force synthetic data.
+Set `USE_LLM = True` (and install `requirements-llm.txt`) to enable the narrative layer.
 
 ## Outputs
 
@@ -102,7 +107,9 @@ Cached panel: `data/cache/panel_essential.parquet` (when real data loaded).
 
 ## LangChain embedded implementation plan
 
-This section is a **roadmap** for embedding [LangChain](https://python.langchain.com/) into the governance layer. The current codebase is intentionally **rule-first**; LangChain should augment **narrative and retrieval**, not replace deterministic quant logic.
+**Status:** Phases 0–3 are implemented in this repo. Phase 4 (exotic data) remains a stretch goal and is not wired.
+
+This section documents how [LangChain](https://python.langchain.com/) embeds into the governance layer. The codebase stays **rule-first**; LangChain augments **narrative and retrieval**, not deterministic quant logic.
 
 ### Design principles
 
@@ -175,10 +182,9 @@ part1/2/3 + return_prediction_model.py
 3. **Chain** — `agents/langchain/chains.py`:
 
 ```python
-# Sketch — not yet implemented
+# LCEL literature chain (agents/langchain/chains.py)
 literature_chain = (
-    {"context": retriever | format_docs, "factor": RunnablePassthrough(), "hypothesis": RunnablePassthrough()}
-    | literature_prompt
+    literature_prompt()
     | llm.with_structured_output(LiteratureNote)
 )
 ```

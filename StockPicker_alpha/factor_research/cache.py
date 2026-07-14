@@ -83,4 +83,20 @@ def persist_research_run(result: GovernanceResult) -> Path:
     (run_dir / "memo.md").write_text(result.memo, encoding="utf-8")
     metrics_json = result.bundle.metrics_df.reset_index().to_dict(orient="records")
     (run_dir / "metrics.json").write_text(json.dumps(metrics_json, indent=2), encoding="utf-8")
+
+    if result.memo_llm:
+        (run_dir / "memo_llm.md").write_text(result.memo_llm, encoding="utf-8")
+        manifest["memo_llm_path"] = str(run_dir / "memo_llm.md")
+
+    if result.deep_review:
+        (run_dir / "deep_review.md").write_text(result.deep_review, encoding="utf-8")
+
+    if result.use_llm or (result.llm_trace and result.llm_trace.get("steps")):
+        (run_dir / "llm_trace.json").write_text(
+            json.dumps(result.llm_trace, indent=2, default=str),
+            encoding="utf-8",
+        )
+        manifest["llm_trace_path"] = str(run_dir / "llm_trace.json")
+        (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
     return run_dir

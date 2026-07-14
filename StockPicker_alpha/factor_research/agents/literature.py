@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from agents.base import AgentFinding, AgentReport
 from data_adapter import ResearchBundle
 
@@ -23,7 +25,7 @@ LITERATURE_NOTES: dict[str, str] = {
 }
 
 
-def run_literature_agent(bundle: ResearchBundle) -> AgentReport:
+def run_literature_agent_template(bundle: ResearchBundle) -> AgentReport:
     findings: list[AgentFinding] = []
 
     for factor in bundle.summary.columns:
@@ -41,3 +43,25 @@ def run_literature_agent(bundle: ResearchBundle) -> AgentReport:
         )
 
     return AgentReport(agent="LiteratureAgent", findings=findings)
+
+
+def run_literature_agent(
+    bundle: ResearchBundle,
+    *,
+    use_llm: bool = False,
+    trace: dict[str, Any] | None = None,
+) -> AgentReport:
+    if use_llm:
+        try:
+            from agents.langchain.chains import llm_layer_available, run_literature_agent_llm
+
+            if llm_layer_available(True):
+                return run_literature_agent_llm(bundle, trace=trace)
+            if trace is not None:
+                trace.setdefault("fallback_reasons", []).append("literature_no_api_or_deps")
+        except Exception as exc:  # noqa: BLE001
+            if trace is not None:
+                trace.setdefault("fallback_reasons", []).append(
+                    f"literature_error:{type(exc).__name__}"
+                )
+    return run_literature_agent_template(bundle)
